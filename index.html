@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Market Insights | KHALID FER</title>
+    <style>
+        :root {
+            --bg-body: #050505;
+            --bg-card: #121212;
+            --accent: #00ff88;
+            --text-main: #ffffff;
+            --text-dim: #a0a0a0;
+            --border: #222222;
+            --sidebar-width: 350px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+            font-size: 22px; /* Extra Large base font */
+        }
+
+        /* Watermark */
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-25deg);
+            font-size: 10vw;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.02);
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--bg-card);
+            border-right: 2px solid var(--border);
+            padding: 40px 0;
+            position: fixed;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .sidebar-brand {
+            padding: 0 30px 40px;
+            text-align: center;
+        }
+
+        .sidebar-brand h1 {
+            font-size: 32px;
+            letter-spacing: 3px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        /* Update Indicator */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 16px;
+            margin-top: 15px;
+            color: var(--text-dim);
+            font-weight: bold;
+        }
+
+        .pulse-dot {
+            height: 12px;
+            width: 12px;
+            background-color: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 12px rgba(0, 255, 136, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+
+        .category-btn {
+            display: block;
+            width: 100%;
+            padding: 22px 30px;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            text-align: left;
+            font-size: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 8px solid transparent;
+        }
+
+        .category-btn:hover, .category-btn.active {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border-left-color: var(--accent);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 60px;
+            width: calc(100% - var(--sidebar-width));
+            z-index: 1;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            background: var(--bg-card);
+            padding: 35px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .search-box { flex: 2; }
+        .search-box input {
+            width: 100%;
+            padding: 22px;
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 22px;
+            outline: none;
+        }
+        .search-box input:focus { border-color: var(--accent); }
+
+        .sort-box { flex: 1; }
+        .sort-box select {
+            width: 100%;
+            padding: 22px;
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        /* Table Design */
+        .table-container {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background-color: #1a1a1a;
+            color: var(--accent);
+            padding: 30px;
+            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            font-size: 24px; /* Large readable text */
+        }
+
+        tr:hover { background-color: rgba(255,255,255,0.02); }
+
+        .volume-badge {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--accent);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 800;
+            display: inline-block;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 80px;
+            padding: 60px;
+            text-align: center;
+            border-top: 2px solid var(--border);
+        }
+
+        .footer-name {
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            margin-bottom: 20px;
+        }
+
+        .blog-link {
+            display: inline-block;
+            padding: 18px 50px;
+            background-color: var(--accent);
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 22px;
+            border-radius: 60px;
+            transition: transform 0.3s;
+        }
+
+        .blog-link:hover { transform: translateY(-5px); }
+
+        /* Responsive Fixes */
+        @media (max-width: 1100px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; position: relative; height: auto; }
+            .main-content { margin-left: 0; width: 100%; padding: 25px; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="watermark">KHALID FER</div>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <h1>KHALID FER</h1>
+            <div class="sync-status">
+                <div class="pulse-dot"></div>
+                <span>DATABASE LIVE SYNC</span>
+            </div>
+        </div>
+        <nav id="categoryFilters">
+            <button class="category-btn active" onclick="setFilter('All')">All Categories</button>
+            <button class="category-btn" onclick="setFilter('Business & Ecommerce')">Business & Ecommerce</button>
+            <button class="category-btn" onclick="setFilter('Audio & Video')">Audio & Photography</button>
+            <button class="category-btn" onclick="setFilter('Content Creation')">Content Creation</button>
+            <button class="category-btn" onclick="setFilter('Creative Assets')">Creative Assets</button>
+            <button class="category-btn" onclick="setFilter('Education')">Education</button>
+            <button class="category-btn" onclick="setFilter('Events & Travel')">Events & Travel</button>
+            <button class="category-btn" onclick="setFilter('Crafts')">Fiber Arts & Crafts</button>
+            <button class="category-btn" onclick="setFilter('Wellness')">Home & Wellness</button>
+            <button class="category-btn" onclick="setFilter('Misc')">Other / Misc</button>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search 290+ ideas..." onkeyup="render()">
+            </div>
+            <div class="sort-box">
+                <select id="sortSelect" onchange="render()">
+                    <option value="none">Sort by Search Volume</option>
+                    <option value="high">Highest Volume First</option>
+                    <option value="low">Lowest Volume First</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Digital Product Idea</th>
+                        <th>Category</th>
+                        <th>Monthly USA Volume</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <div class="footer-name">KHALID FER</div>
+            <p style="color: var(--text-dim); margin-bottom: 25px;">Expert Curation of Digital Market Trends</p>
+            <a href="https://yourblog.com" target="_blank" class="blog-link">Visit My Official Blog</a>
+        </footer>
+    </main>
+
+    <script>
+        const masterData = [
+            // BUSINESS & ECOMMERCE
+            { name: "Resume Template", cat: "Business & Ecommerce", vol: 450000 },
+            { name: "Invoice Template", cat: "Business & Ecommerce", vol: 135000 },
+            { name: "Powerpoint Template", cat: "Business & Ecommerce", vol: 74000 },
+            { name: "Business Plan Template", cat: "Business & Ecommerce", vol: 49500 },
+            { name: "Ebooks", cat: "Business & Ecommerce", vol: 49500 },
+            { name: "Business Card Template", cat: "Business & Ecommerce", vol: 27100 },
+            { name: "Notion Templates", cat: "Business & Ecommerce", vol: 27100 },
+            { name: "Meeting Agenda Templates", cat: "Business & Ecommerce", vol: 22200 },
+            { name: "Gift Certificate Template", cat: "Business & Ecommerce", vol: 18100 },
+            { name: "Brochure Templates", cat: "Business & Ecommerce", vol: 14800 },
+            { name: "Flyer Templates", cat: "Business & Ecommerce", vol: 14800 },
+            { name: "Newsletter Templates", cat: "Business & Ecommerce", vol: 14800 },
+            { name: "Storyboard Template", cat: "Business & Ecommerce", vol: 14800 },
+            { name: "Contract Template", cat: "Business & Ecommerce", vol: 12100 },
+            { name: "Email Templates", cat: "Business & Ecommerce", vol: 12100 },
+            { name: "Infographic Templates", cat: "Business & Ecommerce", vol: 12100 },
+            { name: "Menu Template", cat: "Business & Ecommerce", vol: 12100 },
+            { name: "Website Templates", cat: "Business & Ecommerce", vol: 12100 },
+            { name: "Business Logo", cat: "Business & Ecommerce", vol: 12100 },
+            { name: "Business Proposal Templates", cat: "Business & Ecommerce", vol: 9900 },
+            { name: "Rental Agreement Template", cat: "Business & Ecommerce", vol: 9900 },
+            { name: "Excel Templates", cat: "Business & Ecommerce", vol: 8100 },
+            { name: "Name Tag Template", cat: "Business & Ecommerce", vol: 5400 },
+            { name: "Timesheet Template", cat: "Business & Ecommerce", vol: 5400 },
+            { name: "Employee Handbook Template", cat: "Business & Ecommerce", vol: 4400 },
+            { name: "Figma Templates", cat: "Business & Ecommerce", vol: 4400 },
+            { name: "Pamphlet Template", cat: "Business & Ecommerce", vol: 4400 },
+            { name: "Raffle Ticket Template", cat: "Business & Ecommerce", vol: 4400 },
+            { name: "Resume & Cover Letter Templates", cat: "Business & Ecommerce", vol: 4400 },
+            { name: "Brand Guidelines Template", cat: "Business & Ecommerce", vol: 3600 },
+            { name: "College Resume Template", cat: "Business & Ecommerce", vol: 3600 },
+            { name: "Portfolio Template", cat: "Business & Ecommerce", vol: 3600 },
+            { name: "Billboard Mockup", cat: "Business & Ecommerce", vol: 2900 },
+            { name: "Business Card Mockup", cat: "Business & Ecommerce", vol: 2900 },
+            { name: "Order Form Template", cat: "Business & Ecommerce", vol: 2900 },
+            { name: "Restaurant Menu Template", cat: "Business & Ecommerce", vol: 2900 },
+            { name: "Tshirt Order Form", cat: "Business & Ecommerce", vol: 2900 },
+            { name: "Editable Templates", cat: "Business & Ecommerce", vol: 2400 },
+            { name: "Email Newsletter Templates", cat: "Business & Ecommerce", vol: 2400 },
+            { name: "White Paper Template", cat: "Business & Ecommerce", vol: 2400 },
+            { name: "Ebook Template", cat: "Business & Ecommerce", vol: 1600 },
+            { name: "Legal Contract Templates", cat: "Business & Ecommerce", vol: 1600 },
+            { name: "Invoice Template Download", cat: "Business & Ecommerce", vol: 1300 },
+            { name: "Keynote Template", cat: "Business & Ecommerce", vol: 1300 },
+            { name: "Branding Template", cat: "Business & Ecommerce", vol: 1000 },
+            { name: "Gift Voucher Template", cat: "Business & Ecommerce", vol: 1000 },
+            { name: "Project Management Dashboards", cat: "Business & Ecommerce", vol: 1000 },
+            { name: "Story Planner", cat: "Business & Ecommerce", vol: 1000 },
+            { name: "Pdf Templates", cat: "Business & Ecommerce", vol: 880 },
+            { name: "Architecture Portfolio Template", cat: "Business & Ecommerce", vol: 720 },
+            { name: "Cake Order Form", cat: "Business & Ecommerce", vol: 720 },
+            { name: "Project Report Template", cat: "Business & Ecommerce", vol: 720 },
+            { name: "Client Onboarding Checklist", cat: "Business & Ecommerce", vol: 390 },
+            { name: "Performance Review Forms", cat: "Business & Ecommerce", vol: 390 },
+            { name: "Product Launch Checklist", cat: "Business & Ecommerce", vol: 390 },
+            { name: "Reseller Spreadsheet", cat: "Business & Ecommerce", vol: 320 },
+            { name: "Sales Page Template", cat: "Business & Ecommerce", vol: 260 },
+            { name: "Affiliate Marketing Trackers", cat: "Business & Ecommerce", vol: 170 },
+            { name: "Annual Report Layouts", cat: "Business & Ecommerce", vol: 170 },
+            { name: "Client Intake Forms", cat: "Business & Ecommerce", vol: 110 },
+            { name: "Company Newsletter Designs", cat: "Business & Ecommerce", vol: 70 },
+            { name: "Email Marketing Sequences", cat: "Business & Ecommerce", vol: 70 },
+            { name: "History Timeline Infographics", cat: "Business & Ecommerce", vol: 70 },
+            { name: "Tumbler Order Form", cat: "Business & Ecommerce", vol: 70 },
+            { name: "Craft Order Form", cat: "Business & Ecommerce", vol: 30 },
+            { name: "Presentation Board Template", cat: "Business & Ecommerce", vol: 30 },
+            { name: "Corporate Training Modules", cat: "Business & Ecommerce", vol: 20 },
+            { name: "AI Prompt Engineering Guide", cat: "Business & Ecommerce", vol: 10 },
+            { name: "Thank You Cards Template", cat: "Business & Ecommerce", vol: 10 },
+
+            // AUDIO, VIDEO, PHOTO
+            { name: "Beats", cat: "Audio & Video", vol: 673000 },
+            { name: "Audiobooks", cat: "Audio & Video", vol: 90500 },
+            { name: "Stock Photos", cat: "Audio & Video", vol: 60500 },
+            { name: "Sound Effects", cat: "Audio & Video", vol: 49500 },
+            { name: "Piano Sheet Music", cat: "Audio & Video", vol: 22200 },
+            { name: "Luts", cat: "Audio & Video", vol: 14800 },
+            { name: "Lightroom Presets", cat: "Audio & Video", vol: 12100 },
+            { name: "Music Sheet", cat: "Audio & Video", vol: 12100 },
+            { name: "Music Scores", cat: "Audio & Video", vol: 9900 },
+            { name: "Stock Footage", cat: "Audio & Video", vol: 9900 },
+            { name: "Sound Effect Libraries", cat: "Audio & Video", vol: 5400 },
+            { name: "Video Background", cat: "Audio & Video", vol: 2900 },
+            { name: "After Effects Templates", cat: "Audio & Video", vol: 2400 },
+            { name: "Music Tracks", cat: "Audio & Video", vol: 1900 },
+            { name: "Sample Packs", cat: "Audio & Video", vol: 1900 },
+            { name: "Audio Loops", cat: "Audio & Video", vol: 1600 },
+            { name: "Video Effects", cat: "Audio & Video", vol: 1600 },
+            { name: "Video Overlays", cat: "Audio & Video", vol: 1600 },
+            { name: "Music Theory Worksheets", cat: "Audio & Video", vol: 1000 },
+            { name: "Photography Template", cat: "Audio & Video", vol: 320 },
+            { name: "DJ Sample Packs", cat: "Audio & Video", vol: 170 },
+            { name: "Meditation Audio Guide", cat: "Audio & Video", vol: 140 },
+            { name: "Royalty Free Music Tracks", cat: "Audio & Video", vol: 70 },
+
+            // CONTENT CREATION
+            { name: "Youtube Banner Template", cat: "Content Creation", vol: 22200 },
+            { name: "Instagram Post Templates", cat: "Content Creation", vol: 9900 },
+            { name: "Editorial Calendar Template", cat: "Content Creation", vol: 4400 },
+            { name: "Blogger Template", cat: "Content Creation", vol: 2900 },
+            { name: "Social Media Content Calendars", cat: "Content Creation", vol: 2900 },
+            { name: "Instagram Reel Templates", cat: "Content Creation", vol: 2400 },
+            { name: "Social Media Templates", cat: "Content Creation", vol: 2400 },
+            { name: "Blog Post Template", cat: "Content Creation", vol: 1900 },
+            { name: "Social Media Planner Template", cat: "Content Creation", vol: 1300 },
+            { name: "Youtube Thumbnail Designs", cat: "Content Creation", vol: 390 },
+            { name: "Social Media Posts Planner", cat: "Content Creation", vol: 320 },
+            { name: "Media Kit Canva", cat: "Content Creation", vol: 140 },
+            { name: "Instagram Quotes Templates", cat: "Content Creation", vol: 110 },
+            { name: "Facebook Timeline Template", cat: "Content Creation", vol: 50 },
+            { name: "Content Creation Checklist", cat: "Content Creation", vol: 40 },
+            { name: "Pinterest Template Canva", cat: "Content Creation", vol: 20 },
+            { name: "Podcast Intro Templates", cat: "Content Creation", vol: 20 },
+            { name: "Youtube Digital Planner", cat: "Content Creation", vol: 10 },
+
+            // CREATIVE ASSETS
+            { name: "Comic Strip Template", cat: "Creative Assets", vol: 90500 },
+            { name: "Clip Art", cat: "Creative Assets", vol: 90500 },
+            { name: "Desktop Wallpaper", cat: "Creative Assets", vol: 60500 },
+            { name: "3D Models", cat: "Creative Assets", vol: 49500 },
+            { name: "Tattoo Designs", cat: "Creative Assets", vol: 49500 },
+            { name: "Scalable Vector Graphics (SVG)", cat: "Creative Assets", vol: 33100 },
+            { name: "Digital Art", cat: "Creative Assets", vol: 27100 },
+            { name: "Concept Art", cat: "Creative Assets", vol: 18100 },
+            { name: "Procreate Brushes", cat: "Creative Assets", vol: 18100 },
+            { name: "Adult Coloring Pages", cat: "Creative Assets", vol: 14800 },
+            { name: "Poster Design", cat: "Creative Assets", vol: 8100 },
+            { name: "Vtuber Model", cat: "Creative Assets", vol: 8100 },
+            { name: "Poster Template", cat: "Creative Assets", vol: 5400 },
+            { name: "Color by Number Printable", cat: "Creative Assets", vol: 5400 },
+            { name: "Blender Models", cat: "Creative Assets", vol: 4400 },
+            { name: "Photoshop Brushes", cat: "Creative Assets", vol: 3600 },
+            { name: "Calligraphy Practice Sheets", cat: "Creative Assets", vol: 2900 },
+            { name: "Scientific Poster Template", cat: "Creative Assets", vol: 2900 },
+            { name: "Animated SVG", cat: "Creative Assets", vol: 2400 },
+            { name: "Movie Poster Template", cat: "Creative Assets", vol: 2400 },
+            { name: "Digital Coloring Books", cat: "Creative Assets", vol: 1900 },
+            { name: "Indesign Templates", cat: "Creative Assets", vol: 1900 },
+            { name: "Dinosaur SVG", cat: "Creative Assets", vol: 1600 },
+            { name: "Unicorn SVG", cat: "Creative Assets", vol: 1600 },
+            { name: "Digital Stickers", cat: "Creative Assets", vol: 1300 },
+            { name: "iOS Icons", cat: "Creative Assets", vol: 1300 },
+            { name: "Love SVG", cat: "Creative Assets", vol: 1300 },
+            { name: "Creative Journal", cat: "Creative Assets", vol: 1000 },
+            { name: "Illustration Tutorials", cat: "Creative Assets", vol: 1000 },
+            { name: "Mermaid SVG", cat: "Creative Assets", vol: 880 },
+            { name: "Sketchbook Prompts", cat: "Creative Assets", vol: 720 },
+            { name: "Maya Models", cat: "Creative Assets", vol: 720 },
+            { name: "Butterfly Flowers Clipart", cat: "Creative Assets", vol: 590 },
+            { name: "Groovy Clipart", cat: "Creative Assets", vol: 510 },
+            { name: "Lined Paper Clipart", cat: "Creative Assets", vol: 590 },
+            { name: "Gnome SVG", cat: "Creative Assets", vol: 480 },
+            { name: "Rhino Models", cat: "Creative Assets", vol: 480 },
+            { name: "SVG Bundles", cat: "Creative Assets", vol: 390 },
+            { name: "Candle Template", cat: "Creative Assets", vol: 210 },
+            { name: "SVG Stickers", cat: "Creative Assets", vol: 170 },
+            { name: "3D Modeling Templates", cat: "Creative Assets", vol: 70 },
+            { name: "Digital Watercolor Brushes", cat: "Creative Assets", vol: 20 },
+            { name: "Printable Watercolor Bookmarks", cat: "Creative Assets", vol: 10 },
+
+            // EDUCATION
+            { name: "Flash Cards", cat: "Education", vol: 40500 },
+            { name: "Journaling Prompts", cat: "Education", vol: 33100 },
+            { name: "Kindergarten Worksheets", cat: "Education", vol: 33100 },
+            { name: "Online Courses", cat: "Education", vol: 27100 },
+            { name: "Lesson Plan Templates", cat: "Education", vol: 18100 },
+            { name: "Certificate Template", cat: "Education", vol: 14800 },
+            { name: "Teaching Resources", cat: "Education", vol: 8100 },
+            { name: "ChatGPT Prompts", cat: "Education", vol: 6600 },
+            { name: "Student Planner", cat: "Education", vol: 3600 },
+            { name: "Memberships", cat: "Education", vol: 2400 },
+            { name: "Class Schedule Template", cat: "Education", vol: 1900 },
+            { name: "Educational Activity Sheets", cat: "Education", vol: 1000 },
+            { name: "Homeschooling Planner", cat: "Education", vol: 720 },
+            { name: "Memory Improvement Exercise", cat: "Education", vol: 590 },
+            { name: "Worksheets For Adults", cat: "Education", vol: 390 },
+            { name: "Student Planner Printable", cat: "Education", vol: 210 },
+            { name: "Graduation Announcement Designs", cat: "Education", vol: 170 },
+            { name: "Language Learning Flashcards", cat: "Education", vol: 70 },
+            { name: "Coding Bootcamp Curriculum", cat: "Education", vol: 50 },
+            { name: "Workbook Template Canva", cat: "Education", vol: 40 },
+            { name: "Science Fair Project Guides", cat: "Education", vol: 30 },
+            { name: "Language Pronunciation Guides", cat: "Education", vol: 10 },
+
+            // EVENTS & TRAVEL
+            { name: "Travel Itinerary Template", cat: "Events & Travel", vol: 27100 },
+            { name: "Wedding Planning Checklist", cat: "Events & Travel", vol: 22200 },
+            { name: "Graduation Invitation Template", cat: "Events & Travel", vol: 12100 },
+            { name: "Travel Planner", cat: "Events & Travel", vol: 12100 },
+            { name: "Birthday Invitation Template", cat: "Events & Travel", vol: 6600 },
+            { name: "Travel Guides", cat: "Events & Travel", vol: 6600 },
+            { name: "Wedding Program Template", cat: "Events & Travel", vol: 6600 },
+            { name: "Travel Itinerary Planners", cat: "Events & Travel", vol: 5400 },
+            { name: "Seating Chart Template", cat: "Events & Travel", vol: 4400 },
+            { name: "Wedding Timeline Template", cat: "Events & Travel", vol: 4400 },
+            { name: "Wedding Budget Spreadsheet", cat: "Events & Travel", vol: 2900 },
+            { name: "4 July Invitation", cat: "Events & Travel", vol: 1900 },
+            { name: "Christmas Invitation Template", cat: "Events & Travel", vol: 1900 },
+            { name: "Digital Greeting Card", cat: "Events & Travel", vol: 1300 },
+            { name: "Invitation Card Template", cat: "Events & Travel", vol: 1000 },
+            { name: "Thanksgiving SVG", cat: "Events & Travel", vol: 1000 },
+            { name: "Birthday Countdown Calendars", cat: "Events & Travel", vol: 880 },
+            { name: "Superhero Birthday Invitation", cat: "Events & Travel", vol: 880 },
+            { name: "Holiday Party Invitation Templates", cat: "Events & Travel", vol: 880 },
+            { name: "Printable Table Number", cat: "Events & Travel", vol: 880 },
+            { name: "Printable Thank You Card", cat: "Events & Travel", vol: 570 },
+            { name: "Mothers Day SVG", cat: "Events & Travel", vol: 720 },
+            { name: "Wedding Website Design", cat: "Events & Travel", vol: 390 },
+            { name: "Bridal Shower Bingo Cards", cat: "Events & Travel", vol: 210 },
+            { name: "Family Vacation SVG", cat: "Events & Travel", vol: 140 },
+            { name: "Boarding Pass Wedding Invitation", cat: "Events & Travel", vol: 70 },
+            { name: "Flamingo Invitation Template", cat: "Events & Travel", vol: 30 },
+            { name: "Independence Day Invite", cat: "Events & Travel", vol: 30 },
+            { name: "Tropical Wedding Invitation Suite", cat: "Events & Travel", vol: 20 },
+            { name: "Schools Out For Summer Invite", cat: "Events & Travel", vol: 10 },
+            { name: "Scooter Birthday Invitations", cat: "Events & Travel", vol: 10 },
+            { name: "Travel Savings Tracker", cat: "Events & Travel", vol: 10 },
+
+            // CRAFTS
+            { name: "Crochet Patterns", cat: "Crafts", vol: 74000 },
+            { name: "Quilt Patterns", cat: "Crafts", vol: 49500 },
+            { name: "Embroidery Designs", cat: "Crafts", vol: 27100 },
+            { name: "Sewing Patterns", cat: "Crafts", vol: 27100 },
+            { name: "Cross Stitch Patterns", cat: "Crafts", vol: 22200 },
+            { name: "Tshirt Design", cat: "Crafts", vol: 22200 },
+            { name: "Knitting Patterns", cat: "Crafts", vol: 14800 },
+            { name: "Amigurumi Patterns", cat: "Crafts", vol: 8100 },
+            { name: "Tshirt Design Template", cat: "Crafts", vol: 5400 },
+            { name: "Sewing Tutorials", cat: "Crafts", vol: 880 },
+            { name: "Weaving Loom Patterns", cat: "Crafts", vol: 590 },
+            { name: "Embroidery Stitch Samplers", cat: "Crafts", vol: 320 },
+            { name: "Fabric Dyeing Techniques", cat: "Crafts", vol: 320 },
+            { name: "Crochet Stitch Tutorials", cat: "Crafts", vol: 260 },
+            { name: "Cross Stitch Alphabet Charts", cat: "Crafts", vol: 140 },
+            { name: "Pattern Design Templates", cat: "Crafts", vol: 40 },
+            { name: "Sewing Pattern Adjustments", cat: "Crafts", vol: 30 },
+            { name: "Quilting Block Templates", cat: "Crafts", vol: 10 },
+
+            // WELLNESS
+            { name: "Birth Chart", cat: "Wellness", vol: 301000 },
+            { name: "Astrology Chart", cat: "Wellness", vol: 165000 },
+            { name: "Period Tracker", cat: "Wellness", vol: 60500 },
+            { name: "Financial Planner", cat: "Wellness", vol: 49500 },
+            { name: "Meal Planner", cat: "Wellness", vol: 49500 },
+            { name: "Bullet Journal", cat: "Wellness", vol: 40500 },
+            { name: "Weekly Planner", cat: "Wellness", vol: 27100 },
+            { name: "Workout Planner", cat: "Wellness", vol: 27100 },
+            { name: "Budget Spreadsheet", cat: "Wellness", vol: 18100 },
+            { name: "Budgeting Spreadsheets", cat: "Wellness", vol: 18100 },
+            { name: "Habit Tracker", cat: "Wellness", vol: 18100 },
+            { name: "Digital Planner", cat: "Wellness", vol: 14800 },
+            { name: "Shopping List Template", cat: "Wellness", vol: 14800 },
+            { name: "Funeral Program Template", cat: "Wellness", vol: 12100 },
+            { name: "Vision Board Template", cat: "Wellness", vol: 12100 },
+            { name: "Meal Plan Template", cat: "Wellness", vol: 9900 },
+            { name: "Monthly Planner", cat: "Wellness", vol: 9900 },
+            { name: "Subscription Manager", cat: "Wellness", vol: 9900 },
+            { name: "Time Tracker", cat: "Wellness", vol: 9900 },
+            { name: "Home Cleaning Schedules", cat: "Wellness", vol: 8100 },
+            { name: "Nail Template", cat: "Wellness", vol: 8100 },
+            { name: "Schedule Template", cat: "Wellness", vol: 8100 },
+            { name: "Home Maintenance Checklists", cat: "Wellness", vol: 6600 },
+            { name: "Online Workout Programs", cat: "Wellness", vol: 5400 },
+            { name: "Chore Chart Template", cat: "Wellness", vol: 4400 },
+            { name: "Printable Habit Tracker", cat: "Wellness", vol: 4400 },
+            { name: "Recipe Template", cat: "Wellness", vol: 4400 },
+            { name: "Weight Loss Tracker", cat: "Wellness", vol: 4400 },
+            { name: "Food Diary", cat: "Wellness", vol: 3600 },
+            { name: "Symptom Tracker", cat: "Wellness", vol: 3600 },
+            { name: "Editable Calendar Template", cat: "Wellness", vol: 2900 },
+            { name: "Goal Planner", cat: "Wellness", vol: 2900 },
+            { name: "Home Workout Routine", cat: "Wellness", vol: 2900 },
+            { name: "Second Brain", cat: "Wellness", vol: 2900 },
+            { name: "Journal Template", cat: "Wellness", vol: 2400 },
+            { name: "Mental Health Journals", cat: "Wellness", vol: 2400 },
+            { name: "Printable Daily Planner", cat: "Wellness", vol: 2400 },
+            { name: "Gardening Journals", cat: "Wellness", vol: 1900 },
+            { name: "Blood Glucose Tracker", cat: "Wellness", vol: 1300 },
+            { name: "Monthly Budget Spreadsheet", cat: "Wellness", vol: 1600 },
+            { name: "Online Fitness Programs", cat: "Wellness", vol: 1600 },
+            { name: "Excel Budget", cat: "Wellness", vol: 1000 },
+            { name: "Savings Tracker", cat: "Wellness", vol: 1000 },
+            { name: "Medication Tracker", cat: "Wellness", vol: 880 },
+            { name: "Astrology Reports", cat: "Wellness", vol: 720 },
+            { name: "Meal Prep Guides", cat: "Wellness", vol: 720 },
+            { name: "Mindfulness Exercise Pdf", cat: "Wellness", vol: 720 },
+            { name: "Stress Management Worksheets", cat: "Wellness", vol: 590 },
+            { name: "Debt Spreadsheet", cat: "Wellness", vol: 480 },
+            { name: "Personal Template", cat: "Wellness", vol: 480 },
+            { name: "Digital Vision Board Templates", cat: "Wellness", vol: 390 },
+            { name: "Recipe Template Printable", cat: "Wellness", vol: 390 },
+            { name: "Expense Tracker Spreadsheet", cat: "Wellness", vol: 320 },
+            { name: "Digital Planner Template", cat: "Wellness", vol: 260 },
+            { name: "Workout Planner Calendar", cat: "Wellness", vol: 170 },
+            { name: "Habit Tracking Templates", cat: "Wellness", vol: 110 },
+            { name: "Meal Planning Templates", cat: "Wellness", vol: 110 },
+            { name: "Home Organization Checklist", cat: "Wellness", vol: 90 },
+            { name: "Nutrition Plan Template", cat: "Wellness", vol: 90 },
+            { name: "Family Chore Charts", cat: "Wellness", vol: 40 },
+            { name: "Nutrition Log Templates", cat: "Wellness", vol: 40 },
+            { name: "Parenting Tip Sheets", cat: "Wellness", vol: 20 },
+            { name: "Simple Todo List", cat: "Wellness", vol: 50 },
+
+            // MISC
+            { name: "Twitch Emotes", cat: "Misc", vol: 14800 },
+            { name: "UI Kits", cat: "Misc", vol: 2400 },
+            { name: "Book Cover Mockup", cat: "Misc", vol: 1300 },
+            { name: "Pet Adoption Forms", cat: "Misc", vol: 210 },
+            { name: "Real Estate Goal", cat: "Misc", vol: 170 },
+            { name: "Voiceover Scripts", cat: "Misc", vol: 140 }
+        ];
+
+        let currentFilter = 'All';
+
+        function setFilter(category) {
+            currentFilter = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            render();
+        }
+
+        function render() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const sortVal = document.getElementById('sortSelect').value;
+            const tbody = document.getElementById('tableBody');
+
+            let filtered = masterData;
+
+            if (currentFilter !== 'All') {
+                filtered = filtered.filter(item => item.cat === currentFilter);
+            }
+
+            if (query) {
+                filtered = filtered.filter(item => item.name.toLowerCase().includes(query));
+            }
+
+            if (sortVal === 'high') filtered.sort((a, b) => b.vol - a.vol);
+            if (sortVal === 'low') filtered.sort((a, b) => a.vol - b.vol);
+
+            tbody.innerHTML = '';
+            filtered.forEach(item => {
+                const row = `<tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td style="color:var(--text-dim)">${item.cat}</td>
+                    <td><span class="volume-badge">${item.vol.toLocaleString()}</span></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Init load
+        window.onload = render;
+    </script>
+</body>
+</html>
